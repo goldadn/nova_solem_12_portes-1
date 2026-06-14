@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nova & Solem — Les 12 Portes</title>
+  <style>
+    :root{
+      --bg1:#0f172a;--bg2:#312e81;--card:#ffffff;--ink:#1f2937;--muted:#6b7280;
+      --gold:#d6a84f;--soft:#f8f4ea;--blue:#23395d;--green:#5b7c6d;--rose:#b76e79;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(135deg,var(--bg1),var(--bg2));color:var(--ink);min-height:100vh;padding:18px}
+    .wrap{max-width:920px;margin:auto}
+    .hero{color:white;text-align:center;padding:28px 14px 18px}
+    .hero h1{font-size:clamp(2rem,6vw,4rem);margin:0 0 8px;letter-spacing:.5px}
+    .hero p{font-size:1.08rem;line-height:1.55;margin:8px auto;max-width:720px;opacity:.92}
+    .card{background:rgba(255,255,255,.96);border-radius:26px;padding:22px;margin:16px 0;box-shadow:0 18px 50px rgba(0,0,0,.22)}
+    .center{text-align:center}.hidden{display:none!important}.small{font-size:.92rem;color:var(--muted)}
+    button,.btn{border:0;border-radius:999px;padding:13px 18px;font-weight:700;cursor:pointer;background:var(--gold);color:#1f2937;margin:6px;box-shadow:0 8px 18px rgba(0,0,0,.14)}
+    button.secondary{background:#eef2ff;color:#1e1b4b}.btnline{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+    .pill{display:inline-block;background:var(--soft);border:1px solid #eadfbf;padding:8px 12px;border-radius:999px;margin:4px;font-weight:700;color:#59421d}
+    .gate{border:1px solid #e5e7eb;border-radius:22px;padding:18px;background:#fff;margin:16px 0}
+    .gate h2{margin:0 0 8px;color:var(--blue);font-size:1.35rem}.gate p{font-size:1.05rem;font-weight:650;margin:8px 0 14px}
+    .answers{display:grid;grid-template-columns:1fr;gap:10px}.answer{border:1px solid #e5e7eb;border-radius:16px;padding:14px;background:#fafafa;cursor:pointer;transition:.15s}
+    .answer:hover{transform:translateY(-1px);border-color:#d6a84f}.answer.selected{background:#fff8e6;border-color:#d6a84f;box-shadow:0 0 0 3px rgba(214,168,79,.18)}
+    .progress{height:10px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:16px 0}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--gold),#f2d280);transition:.25s}
+    textarea,input{width:100%;border:1px solid #d1d5db;border-radius:16px;padding:14px;font-size:1rem;font-family:inherit;background:white}textarea{min-height:100px;resize:vertical}
+    .code{word-break:break-all;background:#111827;color:#e5e7eb;border-radius:18px;padding:16px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9rem;text-align:left}
+    .resultBox{background:#f9fafb;border:1px solid #e5e7eb;border-radius:20px;padding:18px;margin-top:14px}.score{font-size:3rem;font-weight:900;color:var(--gold);margin:10px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.metric{background:white;border:1px solid #e5e7eb;border-radius:18px;padding:14px}.metric b{color:var(--blue)}
+    .footer{color:white;text-align:center;font-size:.85rem;opacity:.75;margin:18px}
+    @media (min-width:700px){.answers{grid-template-columns:1fr 1fr}.card{padding:30px}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <h1>Nova & Solem</h1>
+    <p><strong>Les 12 Portes</strong></p>
+    <p>Un jeu doux, ludique et sans pression pour comparer deux univers. Il ne décide rien. Il invite simplement à mieux comprendre ce qui rapproche, ce qui différencie, et ce qui peut devenir un pont.</p>
+  </section>
+
+  <main class="card" id="home">
+    <div class="center">
+      <span class="pill">🌙 Nova</span><span class="pill">☀️ Solem</span><span class="pill">🚪 12 Portes</span>
+      <h2>Choisir un parcours</h2>
+      <p class="small">Chaque personne répond de son côté. À la fin, un code personnel est généré. Quand les deux codes sont réunis, le résultat commun apparaît.</p>
+      <div class="btnline">
+        <button onclick="start('Nova')">Je suis Nova</button>
+        <button onclick="start('Solem')">Je suis Solem</button>
+        <button class="secondary" onclick="showCompare()">Comparer deux codes</button>
+      </div>
+    </div>
+  </main>
+
+  <section class="card hidden" id="quiz">
+    <div class="center"><span class="pill" id="whoPill"></span></div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+    <div id="questionArea"></div>
+    <div class="btnline">
+      <button class="secondary" onclick="prevQ()">← Retour</button>
+      <button onclick="nextQ()" id="nextBtn">Continuer →</button>
+    </div>
+  </section>
+
+  <section class="card hidden" id="finish">
+    <div class="center">
+      <h2>Ton code personnel est prêt ✨</h2>
+      <p class="small">Copie ce code et envoie-le à l'autre personne. Il contient uniquement tes réponses au jeu.</p>
+      <div class="code" id="personalCode"></div>
+      <button onclick="copyCode()">Copier le code</button>
+      <button class="secondary" onclick="restart()">Revenir au début</button>
+    </div>
+  </section>
+
+  <section class="card hidden" id="compare">
+    <h2 class="center">Comparer les deux codes</h2>
+    <p class="small center">Colle ici le code de Nova et celui de Solem, puis lance la comparaison.</p>
+    <label><strong>Code de Nova</strong></label>
+    <textarea id="codeNova" placeholder="Coller ici le code de Nova"></textarea><br><br>
+    <label><strong>Code de Solem</strong></label>
+    <textarea id="codeSolem" placeholder="Coller ici le code de Solem"></textarea>
+    <div class="center"><button onclick="compareCodes()">Afficher le résultat</button><button class="secondary" onclick="restart()">Accueil</button></div>
+    <div id="result" class="hidden"></div>
+  </section>
+
+  <div class="footer">Créé pour Nova & Solem — un jeu d'affinités, pas un verdict.</div>
+</div>
+
+<script>
+const gates = [
+ {t:'La Liberté', q:'Si tu avais une journée entière pour toi, sans aucune obligation, que choisirais-tu ?', a:['Partir à l’aventure sans plan précis','Profiter d’un moment calme chez moi','Partager ce temps avec quelqu’un','Découvrir quelque chose de nouveau'], cat:'rythme'},
+ {t:'Le Temps', q:'Quelle phrase te ressemble le plus ?', a:['Je vis surtout dans le présent','Je prépare beaucoup l’avenir','Je revis souvent le passé','J’essaie d’équilibrer les trois'], cat:'valeurs'},
+ {t:'Le Silence', q:'Quand quelque chose me touche profondément...', a:['J’en parle rapidement','J’écris','Je garde cela pour moi quelque temps','J’attends qu’on me pose la question'], cat:'communication'},
+ {t:'La Confiance', q:'La confiance se construit surtout grâce à...', a:['La sincérité','Les actes','Le temps','Les épreuves traversées ensemble'], cat:'valeurs'},
+ {t:'L’Émotion', q:'Quand je suis triste, j’apprécie surtout...', a:['Être entouré','Être écouté','Être seul','Alterner les deux'], cat:'emotion'},
+ {t:'L’Aventure', q:'Le voyage idéal pour moi ressemble davantage à...', a:['Une aventure improvisée','Un séjour bien préparé','Une découverte culturelle','Un moment de détente'], cat:'rythme'},
+ {t:'Les Rêves', q:'Parmi ces rêves, lequel me parle le plus aujourd’hui ?', a:['Créer','Transmettre','Aimer','Explorer'], cat:'valeurs'},
+ {t:'L’Humour', q:'Dans une relation, l’humour est...', a:['Essentiel','Très important','Agréable mais secondaire','Variable selon les moments'], cat:'relation'},
+ {t:'Le Lien', q:'Je me sens le plus proche d’une personne lorsque...', a:['Nous partageons des émotions','Nous partageons des activités','Nous partageons des valeurs','Nous partageons du temps'], cat:'relation'},
+ {t:'L’Inattendu', q:'Face à une surprise imprévue...', a:['Je suis enthousiaste','Je m’adapte','Je préfère anticiper','Cela dépend du contexte'], cat:'rythme'},
+ {t:'La Tendresse', q:'Je me sens apprécié lorsque...', a:['On me dit les choses','On passe du temps avec moi','On pense à moi','On m’aide concrètement'], cat:'emotion'},
+ {t:'L’Étoile', q:'Quelle phrase te parle le plus aujourd’hui ?', a:['Je préfère comprendre','Je préfère ressentir','Je préfère construire','Je préfère découvrir'], cat:'communication'}
+];
+let player='', idx=0, answers=[];
+function hideAll(){['home','quiz','finish','compare'].forEach(id=>document.getElementById(id).classList.add('hidden'));document.getElementById('result').classList.add('hidden')}
+function start(p){player=p;idx=0;answers=new Array(gates.length).fill(null);hideAll();document.getElementById('quiz').classList.remove('hidden');renderQ()}
+function renderQ(){const g=gates[idx];document.getElementById('whoPill').textContent=player+' répond — Porte '+(idx+1)+' / '+gates.length;document.getElementById('bar').style.width=((idx)/gates.length*100)+'%';let html=`<div class="gate"><h2>🚪 Porte ${idx+1} — ${g.t}</h2><p>${g.q}</p><div class="answers">`;g.a.forEach((x,i)=>{html+=`<div class="answer ${answers[idx]===i?'selected':''}" onclick="selectA(${i})">${x}</div>`});html+='</div></div>';if(idx===gates.length){html=''}document.getElementById('questionArea').innerHTML=html;document.getElementById('nextBtn').textContent=idx===gates.length-1?'Terminer ✨':'Continuer →'}
+function selectA(i){answers[idx]=i;renderQ()}
+function nextQ(){if(answers[idx]===null){alert('Choisis une réponse avant de continuer.');return}if(idx<gates.length-1){idx++;renderQ()}else finish()}
+function prevQ(){if(idx>0){idx--;renderQ()}else restart()}
+function finish(){hideAll();document.getElementById('finish').classList.remove('hidden');document.getElementById('bar').style.width='100%';const data={v:1,player,answers,date:new Date().toISOString().slice(0,10)};document.getElementById('personalCode').textContent=btoa(unescape(encodeURIComponent(JSON.stringify(data))))}
+function copyCode(){navigator.clipboard.writeText(document.getElementById('personalCode').textContent).then(()=>alert('Code copié.'))}
+function showCompare(){hideAll();document.getElementById('compare').classList.remove('hidden')}
+function restart(){hideAll();document.getElementById('home').classList.remove('hidden')}
+function decodeCode(txt){return JSON.parse(decodeURIComponent(escape(atob(txt.trim()))))}
+function compareCodes(){let n,s;try{n=decodeCode(document.getElementById('codeNova').value);s=decodeCode(document.getElementById('codeSolem').value)}catch(e){alert('Un des codes semble incomplet ou incorrect.');return}if(!n.answers||!s.answers||n.answers.length!==s.answers.length){alert('Les deux codes ne correspondent pas au même jeu.');return}let same=0, cats={emotion:[0,0],relation:[0,0],communication:[0,0],rythme:[0,0],valeurs:[0,0]};for(let i=0;i<gates.length;i++){let match=n.answers[i]===s.answers[i];if(match)same++;let c=gates[i].cat;cats[c][1]++;if(match)cats[c][0]++;}let score=Math.round(same/gates.length*100);let tone=score>=75?'Très forte résonance':score>=55?'Belles affinités avec nuances':score>=35?'Deux univers différents mais lisibles':'Différences marquées, à accueillir avec douceur';let text=score>=75?'Beaucoup de portes semblent s’ouvrir avec la même clé. La proximité est nette, surtout si chacun respecte le rythme de l’autre.':score>=55?'Il existe de vrais points de rencontre, mais aussi des différences qui demandent de l’écoute. Ces écarts peuvent devenir des ponts.':score>=35?'Les réponses montrent deux façons différentes d’avancer. Ce n’est pas un échec : c’est une invitation à mieux comprendre les besoins de chacun.':'Les univers semblent éloignés sur plusieurs portes. Cela invite à ne rien forcer, et à privilégier la clarté, la liberté et la paix intérieure.';
+let metrics='';const labels={emotion:'Émotion',relation:'Lien',communication:'Communication',rythme:'Rythme de vie',valeurs:'Valeurs'};Object.keys(cats).forEach(k=>{let pct=Math.round(cats[k][0]/cats[k][1]*100);metrics+=`<div class="metric"><b>${labels[k]}</b><br><span class="score" style="font-size:1.7rem">${pct}%</span></div>`});
+document.getElementById('result').classList.remove('hidden');document.getElementById('result').innerHTML=`<div class="resultBox center"><h2>${tone}</h2><div class="score">${score}%</div><p>${text}</p></div><div class="grid">${metrics}</div><div class="resultBox"><h3>Lecture douce</h3><p>Nova et Solem ne regardent pas forcément le monde de la même façon. Certaines portes rapprochent naturellement. D’autres demandent du temps, de la pudeur, ou simplement une meilleure compréhension du langage de l’autre.</p><p><strong>Ce jeu n’est pas un verdict.</strong> C’est une photographie légère d’un moment, une invitation à regarder le lien sans pression.</p></div>`}
+</script>
+</body>
+</html>
